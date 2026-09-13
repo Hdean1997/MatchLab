@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1220">
+  <title>MatchLab</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #08101d;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 24px 20px;
+      border-bottom: 1px solid #1f2a3a;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .logo span {
+      color: #42e8a5;
+    }
+
+    main {
+      padding: 28px 20px 100px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .eyebrow {
+      color: #42e8a5;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 32px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .intro {
+      color: #9ba9bc;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+
+    .fixture {
+      background: #111b2a;
+      border: 1px solid #213047;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+
+    .competition {
+      color: #7f91a9;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+
+    .time {
+      background: #1b293c;
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0d1725;
+      border-top: 1px solid #213047;
+      display: flex;
+      justify-content: space-around;
+      padding: 13px 8px 25px;
+    }
+
+    nav div {
+      color: #8090a6;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    nav .active {
+      color: #42e8a5;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">Match<span>Lab</span></div>
+  </header>
+
+  <main>
+    <div class="eyebrow">Football Intelligence</div>
+
+    <h1>Analyse the match.<br>Understand the numbers.</h1>
+
+    <p class="intro">
+      Explore fixtures, player statistics, team form and historical
+      trends from one place.
+    </p>
+
+    <h2 class="section-title">Upcoming Fixtures</h2>
+
+    <div class="fixture">
+      <div class="competition">PREMIER LEAGUE</div>
+      <div class="teams">
+        <span>Manchester City</span>
+        <span class="time">16:30</span>
+        <span>Manchester United</span>
+      </div>
+    </div>
+
+    <div class="fixture">
+      <div class="competition">PREMIER LEAGUE</div>
+      <div class="teams">
+        <span>Arsenal</span>
+        <span class="time">20:00</span>
+        <span>Liverpool</span>
+      </div>
+    </div>
+
+  </main>
+
+  <nav>
+    <div class="active">Fixtures</div>
+    <div>Explore</div>
+    <div>Players</div>
+    <div>Saved</div>
+  </nav>
+
+</body>
+</html>
