@@ -137,6 +137,95 @@
     .trend-season span{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-bottom:4px}
     .trend-season strong{display:block;font-size:12px;line-height:1.2}
     .trend-season small{display:block;font-size:8px;color:var(--muted);line-height:1.3;margin-top:4px}
+    .pitch-wrap{margin-top:10px}
+    .pitch-card{margin-bottom:16px}
+    .pitch-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .pitch-team-name{font-size:15px;font-weight:900}
+    .pitch-formation{font-size:12px;color:var(--mint);font-weight:900}
+    .football-pitch{
+      position:relative;
+      width:100%;
+      aspect-ratio:68/105;
+      max-height:520px;
+      overflow:hidden;
+      border:2px solid rgba(255,255,255,.65);
+      border-radius:14px;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,.025) 0,
+          rgba(255,255,255,.025) 12.5%,
+          rgba(255,255,255,.06) 12.5%,
+          rgba(255,255,255,.06) 25%
+        ),
+        linear-gradient(180deg,#1b6d39,#176132);
+      box-shadow:inset 0 0 35px rgba(0,0,0,.22);
+    }
+    .football-pitch:before{
+      content:"";
+      position:absolute;
+      left:50%;top:0;bottom:0;
+      width:1px;
+      background:rgba(255,255,255,.72);
+      transform:translateX(-50%);
+    }
+    .football-pitch:after{
+      content:"";
+      position:absolute;
+      left:50%;top:50%;
+      width:20%;aspect-ratio:1;
+      border:1px solid rgba(255,255,255,.72);
+      border-radius:50%;
+      transform:translate(-50%,-50%);
+    }
+    .pitch-box-top,.pitch-box-bottom{
+      position:absolute;left:27%;width:46%;height:15%;
+      border:1px solid rgba(255,255,255,.72);
+      z-index:1;
+    }
+    .pitch-box-top{top:-1px;border-top:0}
+    .pitch-box-bottom{bottom:-1px;border-bottom:0}
+    .pitch-goal-top,.pitch-goal-bottom{
+      position:absolute;left:39%;width:22%;height:4%;
+      border:1px solid rgba(255,255,255,.72);
+      z-index:1;
+    }
+    .pitch-goal-top{top:-1px;border-top:0}
+    .pitch-goal-bottom{bottom:-1px;border-bottom:0}
+    .pitch-player{
+      position:absolute;
+      width:68px;
+      transform:translate(-50%,-50%);
+      z-index:4;
+      text-align:center;
+    }
+    .shirt{
+      width:31px;height:29px;margin:0 auto 2px;
+      background:#f4f7f6;
+      clip-path:polygon(23% 0,37% 7%,63% 7%,77% 0,100% 21%,83% 37%,76% 28%,76% 100%,24% 100%,24% 28%,17% 37%,0 21%);
+      display:flex;align-items:center;justify-content:center;
+      color:#07110f;font-size:10px;font-weight:950;
+      filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
+    }
+    .shirt.gk{background:#ffd85a}
+    .pitch-label{
+      display:block;
+      max-width:68px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      background:rgba(4,10,8,.86);
+      color:white;
+      border-radius:5px;
+      padding:2px 4px;
+      font-size:9px;
+      line-height:1.2;
+      font-weight:850;
+    }
+    .bench-box{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:11px;margin-top:8px}
+    .bench-title{font-size:11px;color:var(--mint);font-weight:900;letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px}
+    .bench-list{display:flex;flex-wrap:wrap;gap:6px}
+    .bench-chip{padding:6px 8px;border-radius:999px;background:#0a1512;border:1px solid var(--line);font-size:10px;color:var(--text)}
     @media (max-width:390px){
       .lineup-grid{grid-template-columns:1fr}
       h1{font-size:34px}
@@ -436,17 +525,17 @@
     document.getElementById("panel-lineups").innerHTML=loading("Loading lineups…");
     document.getElementById("panel-events").innerHTML=loading("Loading match events…");
 
-    const [statsResult,lineupResult,timelineResult]=await Promise.allSettled([
+    // TheSportsDB free lineup response is heavily truncated, so MatchLab now
+    // builds the lineup pitch from the latest available FPL Core match records.
+    loadPitchLineups(event);
+
+    const [statsResult,timelineResult]=await Promise.allSettled([
       fetchJson(`${API}/lookupeventstats.php?id=${encodeURIComponent(idEvent)}`),
-      fetchJson(`${API}/lookuplineup.php?id=${encodeURIComponent(idEvent)}`),
       fetchJson(`${API}/lookuptimeline.php?id=${encodeURIComponent(idEvent)}`)
     ]);
 
     if(statsResult.status==="fulfilled") renderStats(statsResult.value);
     else renderUnavailable("panel-stats","Match statistics could not be loaded.");
-
-    if(lineupResult.status==="fulfilled") renderLineups(lineupResult.value,event);
-    else renderUnavailable("panel-lineups","Lineups could not be loaded.");
 
     if(timelineResult.status==="fulfilled") renderTimeline(timelineResult.value);
     else renderUnavailable("panel-events","Match events could not be loaded.");
@@ -790,7 +879,7 @@
         <div class="mini-card"><div class="mini-label">Round</div><div class="mini-value">${escapeHtml(event.intRound || "—")}</div></div>
         <div class="mini-card" style="grid-column:1/-1"><div class="mini-label">Venue</div><div class="mini-value">${escapeHtml(event.strVenue || "Not available")}</div></div>
       </div>
-      <p class="panel-note" style="margin-top:14px">Stats, lineups and events are shown only when TheSportsDB has supplied them for this match.</p>
+      <p class="panel-note" style="margin-top:14px">MatchLab combines live fixture data with open historical data. Lineups use each team's most recent available Premier League starting XI.</p>
     `;
   }
 
@@ -812,73 +901,186 @@
     `;
   }
 
-  function renderLineups(json,event){
-    let rows=Array.isArray(json?.lineup) ? json.lineup : [];
-    if(!rows.length){
-      renderUnavailable("panel-lineups","No lineup data is available for this match.");
+  async function loadPitchLineups(event){
+    try{
+      const data=await getTrendData();
+      renderPitchLineups(event,data);
+    }catch(err){
+      console.error("Pitch lineup error:",err);
+      renderUnavailable("panel-lineups","The most recent lineup could not be loaded right now.");
+    }
+  }
+
+  function latestTeamMatchRows(coreTeam,data){
+    if(!coreTeam) return [];
+
+    const teamCode=String(coreTeam.code);
+    const teamPlayerIds=new Set(
+      data.players
+        .filter(p=>String(p.team_code)===teamCode)
+        .map(p=>String(p.player_id))
+    );
+
+    // Preserve currentRows insertion order. The newest match involving this team's
+    // players is the final distinct match_id encountered in the season data.
+    const matchOrder=[];
+    const byMatch=new Map();
+
+    data.currentRows.forEach(r=>{
+      if(!teamPlayerIds.has(String(r.player_id))) return;
+      const id=String(r.match_id||"");
+      if(!id) return;
+      if(!byMatch.has(id)){
+        byMatch.set(id,[]);
+        matchOrder.push(id);
+      }
+      byMatch.get(id).push(r);
+    });
+
+    if(!matchOrder.length) return [];
+
+    const latestId=matchOrder[matchOrder.length-1];
+    return byMatch.get(latestId)||[];
+  }
+
+  function buildLastXI(coreTeam,data){
+    const rows=latestTeamMatchRows(coreTeam,data);
+    if(!rows.length) return {starters:[],bench:[],formation:"—"};
+
+    const teamCode=String(coreTeam.code);
+    const teamPlayers=data.players.filter(p=>String(p.team_code)===teamCode);
+    const playerMap=new Map(teamPlayers.map(p=>[String(p.player_id),p]));
+
+    const enriched=rows.map(r=>({
+      row:r,
+      player:playerMap.get(String(r.player_id))
+    })).filter(x=>x.player);
+
+    let starters=enriched.filter(x=>num(x.row.start_min)===0 && num(x.row.minutes_played)>0);
+
+    // Safety fallback if start_min is missing/odd.
+    if(starters.length<8){
+      starters=[...enriched]
+        .filter(x=>num(x.row.minutes_played)>0)
+        .sort((a,b)=>num(b.row.minutes_played)-num(a.row.minutes_played))
+        .slice(0,11);
+    }else{
+      starters=starters
+        .sort((a,b)=>num(b.row.minutes_played)-num(a.row.minutes_played))
+        .slice(0,11);
+    }
+
+    const starterIds=new Set(starters.map(x=>String(x.player.player_id)));
+    const bench=enriched
+      .filter(x=>!starterIds.has(String(x.player.player_id)))
+      .sort((a,b)=>num(b.row.minutes_played)-num(a.row.minutes_played));
+
+    const counts={DEF:0,MID:0,FWD:0};
+    starters.forEach(x=>{
+      const pos=String(x.player.position||"").toUpperCase();
+      if(counts[pos]!==undefined) counts[pos]++;
+    });
+    const formation=[counts.DEF,counts.MID,counts.FWD].filter((n,i)=>i===0 || n>0).join("-") || "—";
+
+    return {starters,bench,formation};
+  }
+
+  function positionPlayersOnPitch(starters){
+    const groups={GKP:[],DEF:[],MID:[],FWD:[]};
+
+    starters.forEach(x=>{
+      let pos=String(x.player.position||"MID").toUpperCase();
+      if(!groups[pos]) pos="MID";
+      groups[pos].push(x);
+    });
+
+    const rows=[
+      {key:"FWD",y:15},
+      {key:"MID",y:43},
+      {key:"DEF",y:70},
+      {key:"GKP",y:91}
+    ];
+
+    const placed=[];
+    rows.forEach(row=>{
+      const players=groups[row.key];
+      const n=players.length;
+      players.forEach((x,i)=>{
+        const xPct=n===1 ? 50 : 12 + (76*(i/(n-1)));
+        placed.push({...x,xPct,yPct:row.y,pos:row.key});
+      });
+    });
+
+    return placed;
+  }
+
+  function playerDisplayName(p){
+    return p.web_name || p.second_name || `${p.first_name||""} ${p.second_name||""}`.trim() || "Player";
+  }
+
+  function renderPitch(teamName,xi){
+    const placed=positionPlayersOnPitch(xi.starters);
+
+    return `
+      <div class="pitch-card">
+        <div class="pitch-head">
+          <div class="pitch-team-name">${escapeHtml(teamName)}</div>
+          <div class="pitch-formation">${escapeHtml(xi.formation)}</div>
+        </div>
+
+        <div class="football-pitch">
+          <div class="pitch-box-top"></div>
+          <div class="pitch-box-bottom"></div>
+          <div class="pitch-goal-top"></div>
+          <div class="pitch-goal-bottom"></div>
+
+          ${placed.map(x=>`
+            <div class="pitch-player" style="left:${x.xPct}%;top:${x.yPct}%">
+              <div class="shirt ${x.pos==="GKP"?"gk":""}">${escapeHtml(x.player.squad_number || x.player.jersey_number || "")}</div>
+              <span class="pitch-label">${escapeHtml(playerDisplayName(x.player))}</span>
+            </div>
+          `).join("")}
+        </div>
+
+        ${xi.bench.length ? `
+          <div class="bench-box">
+            <div class="bench-title">Other players used in last match</div>
+            <div class="bench-list">
+              ${xi.bench.map(x=>`<span class="bench-chip">${escapeHtml(playerDisplayName(x.player))}</span>`).join("")}
+            </div>
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }
+
+  function renderPitchLineups(event,data){
+    const homeCore=findCoreTeam(event.strHomeTeam,data.teams);
+    const awayCore=findCoreTeam(event.strAwayTeam,data.teams);
+
+    if(!homeCore && !awayCore){
+      renderUnavailable("panel-lineups","MatchLab could not match these teams to the current-season lineup dataset.");
       return;
     }
 
-    const homeId=String(event.idHomeTeam||"");
-    const awayId=String(event.idAwayTeam||"");
-    const homeName=(event.strHomeTeam||"").toLowerCase();
-    const awayName=(event.strAwayTeam||"").toLowerCase();
+    const homeXI=buildLastXI(homeCore,data);
+    const awayXI=buildLastXI(awayCore,data);
 
-    const home=[], away=[], unknown=[];
-    rows.forEach(p=>{
-      const teamId=String(p.idTeam||"");
-      const teamName=String(p.strTeam||"").toLowerCase();
-      if((homeId && teamId===homeId) || (teamName && teamName===homeName)) home.push(p);
-      else if((awayId && teamId===awayId) || (teamName && teamName===awayName)) away.push(p);
-      else unknown.push(p);
-    });
-
-    if(!home.length && !away.length && unknown.length){
-      // Fallback: use strHome/strSide if the API provides it.
-      unknown.forEach(p=>{
-        const side=String(p.strHome || p.strSide || "").toLowerCase();
-        if(side.includes("home")) home.push(p);
-        else if(side.includes("away")) away.push(p);
-      });
+    if(!homeXI.starters.length && !awayXI.starters.length){
+      renderUnavailable("panel-lineups","No recent starting XI data is available for these teams yet.");
+      return;
     }
 
     document.getElementById("panel-lineups").innerHTML=`
-      <p class="panel-note">Starting players and substitutes are separated when the source marks them that way.</p>
-      <div class="lineup-grid">
-        ${lineupColumn(event.strHomeTeam||"Home",home)}
-        ${lineupColumn(event.strAwayTeam||"Away",away)}
-      </div>
-      ${(!home.length && !away.length) ? `<div class="empty">Lineup data was returned, but MatchLab could not reliably separate the two teams.</div>` : ""}
-    `;
-  }
-
-  function lineupColumn(teamName,players){
-    if(!players.length){
-      return `<div class="lineup-team"><h4>${escapeHtml(teamName)}</h4><div class="empty">No players returned</div></div>`;
-    }
-
-    const isSub=p=>{
-      const raw=String(p.strSubstitute ?? p.strSub ?? p.strBench ?? "").toLowerCase();
-      return ["yes","true","1","substitute","bench"].some(x=>raw===x || raw.includes(x));
-    };
-
-    const starters=players.filter(p=>!isSub(p));
-    const subs=players.filter(isSub);
-
-    return `
-      <div class="lineup-team">
-        <h4>${escapeHtml(teamName)}</h4>
-        ${starters.length ? `<div class="lineup-section">Starting XI</div>${starters.map(playerRow).join("")}` : ""}
-        ${subs.length ? `<div class="lineup-section">Substitutes</div>${subs.map(playerRow).join("")}` : ""}
-        ${!starters.length && !subs.length ? players.map(playerRow).join("") : ""}
+      <p class="panel-note">
+        Projected view based on each club's most recent available Premier League starting XI.
+        Players are positioned by their FPL role (GK/DEF/MID/FWD), so exact left/right positions are approximate.
+      </p>
+      <div class="pitch-wrap">
+        ${homeXI.starters.length ? renderPitch(event.strHomeTeam||homeCore?.name||"Home",homeXI) : ""}
+        ${awayXI.starters.length ? renderPitch(event.strAwayTeam||awayCore?.name||"Away",awayXI) : ""}
       </div>
     `;
-  }
-
-  function playerRow(p){
-    const name=p.strPlayer || p.strPlayerName || p.strName || "Player";
-    const pos=p.strPosition || p.strPositionShort || p.strRole || "";
-    return `<div class="player-row"><div class="player-name">${escapeHtml(name)}</div>${pos ? `<div class="player-pos">${escapeHtml(pos)}</div>` : ""}</div>`;
   }
 
   function renderTimeline(json){
