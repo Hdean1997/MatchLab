@@ -128,6 +128,15 @@
     .trend-number span{font-size:9px;color:var(--muted)}
     .trend-legend{display:grid;grid-template-columns:minmax(0,1fr) 58px 58px;gap:8px;color:var(--muted);font-size:9px;padding:0 0 5px}
     .trend-legend div:nth-child(2),.trend-legend div:nth-child(3){text-align:right}
+    .history-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px;margin-bottom:9px}
+    .history-player{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+    .history-rank{font-size:18px;font-weight:950;color:var(--mint);white-space:nowrap}
+    .history-rank small{font-size:9px;color:var(--muted);font-weight:800}
+    .history-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .trend-season{background:#0a1512;border:1px solid var(--line);border-radius:10px;padding:8px;min-width:0}
+    .trend-season span{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-bottom:4px}
+    .trend-season strong{display:block;font-size:12px;line-height:1.2}
+    .trend-season small{display:block;font-size:8px;color:var(--muted);line-height:1.3;margin-top:4px}
     @media (max-width:390px){
       .lineup-grid{grid-template-columns:1fr}
       h1{font-size:34px}
@@ -144,7 +153,7 @@
     <section id="fixturesPage" class="tab-page active">
       <div class="eyebrow">FOOTBALL INTELLIGENCE</div>
       <h1>Analyse the match.<br>Understand the numbers.</h1>
-      <p class="sub">Current Premier League fixtures plus historical player trends from open data, with match stats, lineups and events where available.</p>
+      <p class="sub">Current Premier League fixtures plus player trends across 2025/26 and 2026/27, with match stats, lineups and events where available.</p>
 
       <div class="section-head">
         <h2>Upcoming fixtures</h2>
@@ -233,8 +242,11 @@
 <script>
   const API = "https://www.thesportsdb.com/api/v1/json/123";
   const EPL_ID = "4328";
-  const FPL_CORE_RAW = "https://raw.githubusercontent.com/olbauday/FPL-Core-Insights/main/data/2026-2027/By%20Gameweek";
+  const FPL_CORE_ROOT = "https://raw.githubusercontent.com/olbauday/FPL-Core-Insights/main/data";
+  const FPL_CORE_RAW = `${FPL_CORE_ROOT}/2026-2027/By%20Gameweek`;
+  const FPL_CORE_PREV_PL = `${FPL_CORE_ROOT}/2025-2026/By%20Tournament/Premier%20League`;
   const FPL_CORE_LATEST_GW = 4;
+  const FPL_CORE_PREV_GW = 38;
   const eventStore = new Map();
   let trendDataPromise = null;
   let activeTrendMetric = "fouls_committed";
@@ -456,7 +468,9 @@
 
     trendDataPromise = (async ()=>{
       const latestBase = `${FPL_CORE_RAW}/GW${FPL_CORE_LATEST_GW}`;
-      const [playersText,teamsText,...gwTexts] = await Promise.all([
+
+      // Current-season identity files.
+      const [playersText,teamsText,...currentGwTexts] = await Promise.all([
         fetchText(`${latestBase}/players.csv`),
         fetchText(`${latestBase}/teams.csv`),
         ...Array.from({length:FPL_CORE_LATEST_GW},(_,i)=>
@@ -467,21 +481,89 @@
       const players = parseCSV(playersText);
       const teams = parseCSV(teamsText);
 
-      // Gameweek snapshots can overlap, so keep one copy of each player/match row.
-      const rowMap = new Map();
-      gwTexts.flatMap(parseCSV).forEach(row=>{
+      // Current-season player-match rows.
+      const currentRowMap = new Map();
+      currentGwTexts.flatMap(parseCSV).forEach(row=>{
         const key = `${row.player_id}|${row.match_id}`;
-        if(row.player_id && row.match_id) rowMap.set(key,row);
+        if(row.player_id && row.match_id) currentRowMap.set(key,row);
       });
 
-      return {players,teams,rows:[...rowMap.values()]};
+      // Previous-season data is static, so cache the compact aggregate in localStorage.
+      const prev = await getPreviousSeasonAggregate();
+
+      return {
+        players,
+        teams,
+        currentRows:[...currentRowMap.values()],
+        previousByPlayerCode:prev
+      };
     })();
 
     return trendDataPromise;
   }
 
+  async function getPreviousSeasonAggregate(){
+    const cacheKey="matchlab_fplcore_2025_26_player_aggregate_v1";
+
+    try{
+      const cached=localStorage.getItem(cacheKey);
+      if(cached) return JSON.parse(cached);
+    }catch(e){}
+
+    // Use GW38 identity files so player_code can link the same player across seasons.
+    const [prevPlayersText,...gwTexts] = await Promise.all([
+      fetchText(`${FPL_CORE_ROOT}/2025-2026/By%20Gameweek/GW38/players.csv`),
+      ...Array.from({length:FPL_CORE_PREV_GW},(_,i)=>
+        fetchText(`${FPL_CORE_PREV_PL}/GW${i+1}/playermatchstats.csv`)
+      )
+    ]);
+
+    const prevPlayers=parseCSV(prevPlayersText);
+    const prevIdToCode=new Map(
+      prevPlayers.map(p=>[String(p.player_id),String(p.player_code||"")])
+    );
+
+    const rowsByKey=new Map();
+    gwTexts.flatMap(parseCSV).forEach(row=>{
+      const key=`${row.player_id}|${row.match_id}`;
+      if(row.player_id && row.match_id) rowsByKey.set(key,row);
+    });
+
+    const aggregate={};
+
+    rowsByKey.forEach(r=>{
+      const code=prevIdToCode.get(String(r.player_id));
+      if(!code) return;
+
+      const mins=num(r.minutes_played);
+      if(mins<=0) return;
+
+      if(!aggregate[code]){
+        aggregate[code]={
+          minutes:0,matches:0,
+          fouls_committed:0,was_fouled:0,
+          total_shots:0,shots_on_target:0
+        };
+      }
+
+      const a=aggregate[code];
+      a.minutes+=mins;
+      a.matches+=1;
+      a.fouls_committed+=num(r.fouls_committed);
+      a.was_fouled+=num(r.was_fouled);
+      a.total_shots+=num(r.total_shots);
+      a.shots_on_target+=num(r.shots_on_target);
+    });
+
+    try{
+      localStorage.setItem(cacheKey,JSON.stringify(aggregate));
+    }catch(e){}
+
+    return aggregate;
+  }
+
   async function fetchText(url){
-    const r = await fetch(url,{cache:"no-store"});
+    const r = await fetch(url,{cache:"force-cache"});
     if(!r.ok) throw new Error(`Data request failed ${r.status}`);
     return r.text();
   }
@@ -532,9 +614,7 @@
       .replace("afcbournemouth","bournemouth")
       .replace("brightonandhovealbion","brighton")
       .replace("newcastleunited","newcastle")
-      .replace("leedsunited","leeds")
-      .replace("ipswichtown","ipswichtown")
-      .replace("hullcity","hullcity");
+      .replace("leedsunited","leeds");
   }
 
   function findCoreTeam(eventName,teams){
@@ -550,6 +630,21 @@
     return Number.isFinite(n) ? n : 0;
   }
 
+  function emptyTrendAggregate(){
+    return {
+      minutes:0,matches:0,
+      fouls_committed:0,was_fouled:0,
+      total_shots:0,shots_on_target:0
+    };
+  }
+
+  function addTrendAggregate(target,source){
+    if(!source) return target;
+    ["minutes","matches","fouls_committed","was_fouled","total_shots","shots_on_target"]
+      .forEach(k=>target[k]+=num(source[k]));
+    return target;
+  }
+
   function buildTeamTrends(coreTeam,data){
     if(!coreTeam) return [];
 
@@ -557,12 +652,9 @@
     const teamPlayers=data.players.filter(p=>String(p.team_code)===teamCode);
     const playerMap=new Map(teamPlayers.map(p=>[String(p.player_id),p]));
 
-    const aggregated=new Map();
+    const current=new Map();
 
-    data.rows.forEach(r=>{
-      // Premier League only for this first test.
-      if(!String(r.match_id||"").includes("-prem-")) return;
-
+    data.currentRows.forEach(r=>{
       const p=playerMap.get(String(r.player_id));
       if(!p) return;
 
@@ -570,19 +662,9 @@
       if(mins<=0) return;
 
       const id=String(r.player_id);
-      if(!aggregated.has(id)){
-        aggregated.set(id,{
-          player:p,
-          minutes:0,
-          matches:0,
-          fouls_committed:0,
-          was_fouled:0,
-          total_shots:0,
-          shots_on_target:0
-        });
-      }
+      if(!current.has(id)) current.set(id,emptyTrendAggregate());
 
-      const a=aggregated.get(id);
+      const a=current.get(id);
       a.minutes+=mins;
       a.matches+=1;
       a.fouls_committed+=num(r.fouls_committed);
@@ -591,11 +673,25 @@
       a.shots_on_target+=num(r.shots_on_target);
     });
 
-    return [...aggregated.values()].filter(a=>a.minutes>=45);
+    return teamPlayers.map(p=>{
+      const currentAgg=current.get(String(p.player_id)) || emptyTrendAggregate();
+      const previousAgg=data.previousByPlayerCode[String(p.player_code||"")] || emptyTrendAggregate();
+      const combined=addTrendAggregate(
+        addTrendAggregate(emptyTrendAggregate(),previousAgg),
+        currentAgg
+      );
+
+      return {
+        player:p,
+        current:currentAgg,
+        previous:previousAgg,
+        combined
+      };
+    }).filter(x=>x.combined.minutes>=45);
   }
 
-  function metricPer90(player,metric){
-    return player.minutes ? (player[metric]/player.minutes)*90 : 0;
+  function metricPer90(agg,metric){
+    return agg && agg.minutes ? (num(agg[metric])/agg.minutes)*90 : 0;
   }
 
   function setTrendMetric(metric){
@@ -617,39 +713,60 @@
     }
 
     const metricInfo={
-      fouls_committed:{label:"Fouls committed",short:"Fouls /90"},
-      was_fouled:{label:"Times fouled",short:"Fouled /90"},
-      total_shots:{label:"Total shots",short:"Shots /90"},
-      shots_on_target:{label:"Shots on target",short:"SOT /90"}
+      fouls_committed:{label:"Fouls committed",short:"Fouls"},
+      was_fouled:{label:"Times fouled",short:"Fouled"},
+      total_shots:{label:"Total shots",short:"Shots"},
+      shots_on_target:{label:"Shots on target",short:"SOT"}
     };
 
     const info=metricInfo[metric] || metricInfo.fouls_committed;
-    const home=buildTeamTrends(homeCore,data)
-      .sort((a,b)=>metricPer90(b,metric)-metricPer90(a,metric)).slice(0,7);
-    const away=buildTeamTrends(awayCore,data)
-      .sort((a,b)=>metricPer90(b,metric)-metricPer90(a,metric)).slice(0,7);
+
+    const sorter=(a,b)=>{
+      // Rank primarily by combined rate when previous-season history exists,
+      // otherwise current-season rate.
+      const aBase=a.previous.minutes ? a.combined : a.current;
+      const bBase=b.previous.minutes ? b.combined : b.current;
+      return metricPer90(bBase,metric)-metricPer90(aBase,metric);
+    };
+
+    const home=buildTeamTrends(homeCore,data).sort(sorter).slice(0,8);
+    const away=buildTeamTrends(awayCore,data).sort(sorter).slice(0,8);
+
+    const statLine=(label,agg)=>{
+      if(!agg || !agg.minutes) return `<div class="trend-season"><span>${label}</span><strong>—</strong><small>No PL data</small></div>`;
+      return `<div class="trend-season">
+        <span>${label}</span>
+        <strong>${metricPer90(agg,metric).toFixed(2)} /90</strong>
+        <small>${agg[metric].toFixed(0)} total · ${agg.matches} match${agg.matches===1?"":"es"} · ${Math.round(agg.minutes)} min</small>
+      </div>`;
+    };
 
     const teamBlock=(displayName,players)=>`
       <div class="trend-team">${escapeHtml(displayName)}</div>
-      <div class="trend-legend"><div>Player</div><div>${escapeHtml(info.short)}</div><div>Total</div></div>
       ${players.length ? players.map(p=>`
-        <div class="trend-row">
-          <div class="trend-player">
-            <div class="trend-name">${escapeHtml(p.player.web_name || `${p.player.first_name||""} ${p.player.second_name||""}`.trim())}</div>
-            <div class="trend-meta">${escapeHtml(p.player.position||"")} · ${p.matches} match${p.matches===1?"":"es"} · ${Math.round(p.minutes)} min</div>
+        <div class="history-card">
+          <div class="history-player">
+            <div>
+              <div class="trend-name">${escapeHtml(p.player.web_name || `${p.player.first_name||""} ${p.player.second_name||""}`.trim())}</div>
+              <div class="trend-meta">${escapeHtml(p.player.position||"")}</div>
+            </div>
+            <div class="history-rank">${metricPer90(p.previous.minutes ? p.combined : p.current,metric).toFixed(2)} <small>/90</small></div>
           </div>
-          <div class="trend-number"><strong>${metricPer90(p,metric).toFixed(2)}</strong><span>per 90</span></div>
-          <div class="trend-number"><strong>${p[metric].toFixed(0)}</strong><span>season sample</span></div>
+          <div class="history-grid">
+            ${statLine("2026/27",p.current)}
+            ${statLine("2025/26",p.previous)}
+            ${statLine("Combined",p.combined)}
+          </div>
         </div>
       `).join("") : `<div class="empty">No usable player data yet.</div>`}
     `;
 
     document.getElementById("panel-trends").innerHTML=`
       <div class="trend-source">
-        <span>2026/27 Premier League history</span>
-        <strong>FPL Core Insights · GW1–GW${FPL_CORE_LATEST_GW}</strong>
+        <span>Premier League player history</span>
+        <strong>2025/26 + 2026/27</strong>
       </div>
-      <p class="panel-note">Historical performance only. Rates are calculated by MatchLab from the minutes and match records currently available in the open dataset.</p>
+      <p class="panel-note">Each player now shows this season, last season and a combined per-90 rate. Players who were not in the Premier League last season simply show no 2025/26 record.</p>
 
       <div class="metric-switch">
         <button class="metric-btn ${metric==="fouls_committed"?"active":""}" onclick="setTrendMetric('fouls_committed')">Fouls committed</button>
