@@ -15,7 +15,7 @@
       --muted:#91a6a0;
       --mint:#7fffd4;
       --mint2:#4fe0b4;
-      --danger:#ff7b8a;
+      --danger:#ff9aa7;
     }
     *{box-sizing:border-box}
     html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
@@ -45,17 +45,14 @@
     .status-card{padding:18px;text-align:center;color:var(--muted)}
     .spinner{width:24px;height:24px;border:3px solid var(--line);border-top-color:var(--mint);border-radius:50%;margin:4px auto 12px;animation:spin .85s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .error{color:#ffb5bd}
+    .error{color:var(--danger)}
     .hidden{display:none!important}
     .tab-page{display:none}
     .tab-page.active{display:block}
     .bottom-nav{
-      position:fixed;left:0;right:0;bottom:0;
-      background:rgba(7,17,15,.94);
-      backdrop-filter:blur(14px);
-      border-top:1px solid var(--line);
-      padding:9px 8px calc(9px + env(safe-area-inset-bottom));
-      z-index:20
+      position:fixed;left:0;right:0;bottom:0;background:rgba(7,17,15,.94);
+      backdrop-filter:blur(14px);border-top:1px solid var(--line);
+      padding:9px 8px calc(9px + env(safe-area-inset-bottom));z-index:20
     }
     .nav-inner{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
     .nav-btn{border:0;background:transparent;color:var(--muted);padding:8px 4px;border-radius:12px;font-size:11px;font-weight:750}
@@ -64,69 +61,98 @@
     .info-box{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:17px;margin-bottom:12px}
     .info-box h3{margin:0 0 7px;font-size:16px}
     .info-box p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
-    .modal{
-      position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:40;
-      display:flex;align-items:flex-end;justify-content:center
-    }
-    .sheet{
-      width:100%;max-width:760px;max-height:82vh;overflow:auto;
-      background:#0a1513;border:1px solid var(--line);border-bottom:0;
-      border-radius:24px 24px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))
-    }
-    .sheet-bar{width:42px;height:4px;border-radius:8px;background:#385047;margin:0 auto 15px}
-    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .sheet h3{margin:0;font-size:20px}
-    .close{border:1px solid var(--line);background:var(--panel);color:var(--text);width:35px;height:35px;border-radius:50%;font-size:20px}
-    .stat-row{display:grid;grid-template-columns:55px 1fr 55px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-    .stat-row:last-child{border-bottom:0}
-    .stat-row .name{text-align:center;color:var(--muted);font-size:12px}
-    .stat-row .home{font-weight:850}
-    .stat-row .away{text-align:right;font-weight:850}
-    .empty{color:var(--muted);text-align:center;padding:18px 8px}
-    .refresh{border:0;background:transparent;color:var(--mint);font-weight:800;padding:0}
     .badge{display:inline-block;padding:5px 8px;border-radius:8px;background:#122820;color:var(--mint);font-size:11px;font-weight:800;margin-top:8px}
+    .refresh{border:0;background:transparent;color:var(--mint);font-weight:800;padding:0}
+
+    /* Match sheet */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+    .sheet{
+      width:100%;max-width:760px;height:min(88vh,820px);overflow:hidden;
+      background:#091411;border:1px solid var(--line);border-bottom:0;
+      border-radius:24px 24px 0 0;display:flex;flex-direction:column
+    }
+    .sheet-top{padding:10px 16px 0}
+    .sheet-bar{width:42px;height:4px;border-radius:8px;background:#385047;margin:0 auto 10px}
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .sheet-title{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+    .close{border:1px solid var(--line);background:var(--panel);color:var(--text);width:35px;height:35px;border-radius:50%;font-size:20px}
+    .match-hero{padding:13px 2px 15px}
+    .hero-meta{text-align:center;color:var(--muted);font-size:12px;margin-bottom:13px}
+    .hero-teams{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+    .hero-team{text-align:center;font-size:15px;font-weight:850;line-height:1.3}
+    .hero-score{font-size:27px;font-weight:950;color:var(--mint);min-width:78px;text-align:center}
+    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:0 16px 10px;border-bottom:1px solid var(--line)}
+    .match-tab{border:0;background:transparent;color:var(--muted);padding:10px 3px;border-radius:10px;font-size:12px;font-weight:800}
+    .match-tab.active{background:#10231e;color:var(--mint)}
+    .sheet-body{overflow:auto;padding:14px 16px calc(26px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+    .match-panel{display:none}
+    .match-panel.active{display:block}
+    .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .mini-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px}
+    .mini-label{font-size:11px;color:var(--muted);margin-bottom:5px}
+    .mini-value{font-size:14px;font-weight:800;line-height:1.35}
+    .panel-note{color:var(--muted);font-size:12px;line-height:1.5;margin-bottom:12px}
+    .stat-row{display:grid;grid-template-columns:60px 1fr 60px;gap:8px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line)}
+    .stat-row:last-child{border-bottom:0}
+    .stat-name{text-align:center;color:var(--muted);font-size:12px;line-height:1.2}
+    .stat-home{font-weight:850}
+    .stat-away{text-align:right;font-weight:850}
+    .empty{color:var(--muted);text-align:center;padding:25px 10px;line-height:1.5}
+    .lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+    .lineup-team{border:1px solid var(--line);background:var(--panel);border-radius:15px;padding:11px}
+    .lineup-team h4{margin:0 0 10px;font-size:13px;text-align:center}
+    .lineup-section{font-size:10px;color:var(--mint);font-weight:900;letter-spacing:.8px;margin:12px 0 6px;text-transform:uppercase}
+    .player-row{padding:8px 0;border-bottom:1px solid var(--line)}
+    .player-row:last-child{border-bottom:0}
+    .player-name{font-size:12px;font-weight:800;line-height:1.25}
+    .player-pos{font-size:10px;color:var(--muted);margin-top:2px}
+    .timeline-item{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+    .timeline-item:last-child{border-bottom:0}
+    .timeline-time{font-size:13px;color:var(--mint);font-weight:900}
+    .timeline-main{font-size:13px;font-weight:800}
+    .timeline-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
+    @media (max-width:390px){
+      .lineup-grid{grid-template-columns:1fr}
+      h1{font-size:34px}
+    }
   </style>
 </head>
 <body>
   <main class="app">
     <div class="topbar">
       <div class="brand">Match<span>Lab</span></div>
-      <div class="live-pill"><span class="dot"></span> TheSportsDB</div>
+      <div class="live-pill"><span class="dot"></span> Live data</div>
     </div>
 
     <section id="fixturesPage" class="tab-page active">
       <div class="eyebrow">FOOTBALL INTELLIGENCE</div>
       <h1>Analyse the match.<br>Understand the numbers.</h1>
-      <p class="sub">Current Premier League fixtures and recent results, pulled directly from TheSportsDB's free API.</p>
+      <p class="sub">Current Premier League fixtures and recent results, with match stats, lineups and events where TheSportsDB has them available.</p>
 
       <div class="section-head">
         <h2>Upcoming fixtures</h2>
         <button class="refresh" onclick="loadFootballData()">Refresh</button>
       </div>
-      <div id="upcoming">
-        <div class="card status-card"><div class="spinner"></div>Loading current fixtures…</div>
-      </div>
+      <div id="upcoming"><div class="card status-card"><div class="spinner"></div>Loading current fixtures…</div></div>
 
       <div class="section-head" style="margin-top:24px">
         <h2>Recent results</h2>
-        <small>Tap a match for stats</small>
+        <small>Tap a match</small>
       </div>
-      <div id="recent">
-        <div class="card status-card"><div class="spinner"></div>Loading results…</div>
-      </div>
+      <div id="recent"><div class="card status-card"><div class="spinner"></div>Loading results…</div></div>
     </section>
 
     <section id="explorePage" class="tab-page">
       <div class="eyebrow">EXPLORE</div>
       <h1>Football data,<br>without the clutter.</h1>
       <div class="info-box">
-        <h3>Premier League</h3>
-        <p>League ID 4328 · Season 2026/27. MatchLab is now connected directly to TheSportsDB's free public API.</p>
+        <h3>Premier League 2026/27</h3>
+        <p>MatchLab is connected directly to TheSportsDB's free public API for current fixtures, results and available match data.</p>
         <span class="badge">LIVE DATA CONNECTION</span>
       </div>
       <div class="info-box">
-        <h3>Match statistics</h3>
-        <p>For completed matches where TheSportsDB has a statistics record, MatchLab can display shots, passing, fouls, cards, possession and other available match data.</p>
+        <h3>Match data</h3>
+        <p>Completed matches can include statistics, lineups and a match timeline. Coverage varies by match, so MatchLab only displays data actually returned by the source.</p>
       </div>
     </section>
 
@@ -135,7 +161,7 @@
       <h1>Player analysis<br>comes next.</h1>
       <div class="info-box">
         <h3>Next build stage</h3>
-        <p>We'll add player and team pages after we confirm the fixture feed is behaving properly on your GitHub Pages site.</p>
+        <p>Once the new match centre is confirmed working properly, we can build dedicated player and team analysis pages.</p>
       </div>
     </section>
 
@@ -144,7 +170,7 @@
       <h1>Your matches,<br>kept handy.</h1>
       <div class="info-box">
         <h3>Saved matches</h3>
-        <p>This section is ready for us to add favourites once the live football feed is confirmed working.</p>
+        <p>This section is ready for favourites later.</p>
       </div>
     </section>
   </main>
@@ -158,20 +184,37 @@
     </div>
   </nav>
 
-  <div id="modal" class="modal hidden" onclick="closeModal(event)">
+  <div id="matchModal" class="modal hidden" onclick="closeMatch(event)">
     <div class="sheet" onclick="event.stopPropagation()">
-      <div class="sheet-bar"></div>
-      <div class="sheet-head">
-        <h3 id="modalTitle">Match statistics</h3>
-        <button class="close" onclick="closeModal()">×</button>
+      <div class="sheet-top">
+        <div class="sheet-bar"></div>
+        <div class="sheet-head">
+          <div class="sheet-title">Match Centre</div>
+          <button class="close" onclick="closeMatch()">×</button>
+        </div>
+        <div id="matchHero" class="match-hero"></div>
       </div>
-      <div id="modalBody" style="margin-top:12px"></div>
+
+      <div class="tabs">
+        <button class="match-tab active" data-match-tab="overview">Overview</button>
+        <button class="match-tab" data-match-tab="stats">Stats</button>
+        <button class="match-tab" data-match-tab="lineups">Lineups</button>
+        <button class="match-tab" data-match-tab="events">Events</button>
+      </div>
+
+      <div class="sheet-body">
+        <section id="panel-overview" class="match-panel active"></section>
+        <section id="panel-stats" class="match-panel"></section>
+        <section id="panel-lineups" class="match-panel"></section>
+        <section id="panel-events" class="match-panel"></section>
+      </div>
     </div>
   </div>
 
 <script>
   const API = "https://www.thesportsdb.com/api/v1/json/123";
   const EPL_ID = "4328";
+  const eventStore = new Map();
 
   const upcomingEl = document.getElementById("upcoming");
   const recentEl = document.getElementById("recent");
@@ -182,37 +225,46 @@
       document.querySelectorAll(".tab-page").forEach(p => p.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById(btn.dataset.page).classList.add("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+  });
+
+  document.querySelectorAll(".match-tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".match-tab").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".match-panel").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(`panel-${btn.dataset.matchTab}`).classList.add("active");
     });
   });
 
   function isoDate(date){
-    const y = date.getFullYear();
-    const m = String(date.getMonth()+1).padStart(2,"0");
-    const d = String(date.getDate()).padStart(2,"0");
+    const y=date.getFullYear();
+    const m=String(date.getMonth()+1).padStart(2,"0");
+    const d=String(date.getDate()).padStart(2,"0");
     return `${y}-${m}-${d}`;
   }
 
-  function addDays(base, n){
-    const d = new Date(base);
+  function addDays(base,n){
+    const d=new Date(base);
     d.setDate(d.getDate()+n);
     return d;
   }
 
   function prettyDate(value){
     if(!value) return "Date TBC";
-    const d = new Date(value + "T12:00:00");
-    return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+    const d=new Date(value+"T12:00:00");
+    return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
   }
 
   function prettyTime(event){
-    const raw = event.strTime || event.strTimestamp?.slice(11,16);
+    const raw=event.strTimeLocal || event.strTime || (event.strTimestamp ? event.strTimestamp.slice(11,16) : "");
     if(!raw) return "Time TBC";
-    return raw.slice(0,5);
+    return String(raw).slice(0,5);
   }
 
   function isCompleted(event){
-    const status = (event.strStatus || "").toLowerCase();
+    const status=(event.strStatus||"").toLowerCase();
     return event.intHomeScore !== null &&
            event.intHomeScore !== "" &&
            event.intAwayScore !== null &&
@@ -221,131 +273,274 @@
   }
 
   function dedupeEvents(events){
-    const map = new Map();
-    events.forEach(e => {
-      if(e && e.idEvent && String(e.idLeague) === EPL_ID) map.set(e.idEvent,e);
+    const map=new Map();
+    events.forEach(e=>{
+      if(e && e.idEvent && String(e.idLeague)===EPL_ID) map.set(String(e.idEvent),e);
     });
     return [...map.values()];
   }
 
-  async function fetchDay(date){
-    const url = `${API}/eventsday.php?d=${isoDate(date)}&l=${EPL_ID}`;
-    const r = await fetch(url);
+  async function fetchJson(url){
+    const r=await fetch(url);
     if(!r.ok) throw new Error(`API error ${r.status}`);
-    const json = await r.json();
+    return r.json();
+  }
+
+  async function fetchDay(date){
+    const json=await fetchJson(`${API}/eventsday.php?d=${isoDate(date)}&l=${EPL_ID}`);
     return json.events || [];
   }
 
   async function loadFootballData(){
-    upcomingEl.innerHTML = '<div class="card status-card"><div class="spinner"></div>Loading current fixtures…</div>';
-    recentEl.innerHTML = '<div class="card status-card"><div class="spinner"></div>Loading results…</div>';
+    upcomingEl.innerHTML='<div class="card status-card"><div class="spinner"></div>Loading current fixtures…</div>';
+    recentEl.innerHTML='<div class="card status-card"><div class="spinner"></div>Loading results…</div>';
 
     try{
-      const now = new Date();
+      const now=new Date();
+      const offsets=[-3,-2,-1,0,1,2,3];
+      const dayResults=await Promise.all(offsets.map(n=>fetchDay(addDays(now,n))));
+      const events=dedupeEvents(dayResults.flat())
+        .sort((a,b)=>`${a.dateEvent||""} ${a.strTime||""}`.localeCompare(`${b.dateEvent||""} ${b.strTime||""}`));
 
-      // 7 calls total: within the free API's documented 30 requests/minute allowance.
-      // We look at the previous 3 days, today, and next 3 days.
-      const offsets = [-3,-2,-1,0,1,2,3];
-      const dayResults = await Promise.all(offsets.map(n => fetchDay(addDays(now,n))));
-      const events = dedupeEvents(dayResults.flat())
-        .sort((a,b) => `${a.dateEvent||""} ${a.strTime||""}`.localeCompare(`${b.dateEvent||""} ${b.strTime||""}`));
+      events.forEach(e=>eventStore.set(String(e.idEvent),e));
 
-      const recent = events.filter(isCompleted).slice(-6).reverse();
-      const upcoming = events.filter(e => !isCompleted(e)).slice(0,8);
-
-      renderUpcoming(upcoming);
-      renderRecent(recent);
-
+      renderUpcoming(events.filter(e=>!isCompleted(e)).slice(0,8));
+      renderRecent(events.filter(isCompleted).slice(-8).reverse());
     }catch(err){
       console.error(err);
-      const msg = `
-        <div class="card status-card error">
-          MatchLab couldn't reach TheSportsDB right now.<br><br>
-          Tap <b>Refresh</b> in a moment.
-        </div>`;
-      upcomingEl.innerHTML = msg;
-      recentEl.innerHTML = msg;
+      const msg='<div class="card status-card error">MatchLab could not reach TheSportsDB right now.<br><br>Tap <b>Refresh</b> in a moment.</div>';
+      upcomingEl.innerHTML=msg;
+      recentEl.innerHTML=msg;
     }
   }
 
   function renderUpcoming(events){
     if(!events.length){
-      upcomingEl.innerHTML = '<div class="card status-card">No Premier League fixtures were returned in the next few days.</div>';
+      upcomingEl.innerHTML='<div class="card status-card">No Premier League fixtures were returned in the next few days.</div>';
       return;
     }
-
-    upcomingEl.innerHTML = events.map(e => `
+    upcomingEl.innerHTML=events.map(e=>`
       <div class="card">
-        <div class="fixture-top">
-          <span>${prettyDate(e.dateEvent)}</span>
-          <span>${prettyTime(e)}</span>
-        </div>
+        <div class="fixture-top"><span>${prettyDate(e.dateEvent)}</span><span>${prettyTime(e)}</span></div>
         <div class="teams">
-          <div class="team">${escapeHtml(e.strHomeTeam || "Home")}</div>
+          <div class="team">${escapeHtml(e.strHomeTeam||"Home")}</div>
           <div class="score"><span class="vs">VS</span></div>
-          <div class="team away">${escapeHtml(e.strAwayTeam || "Away")}</div>
+          <div class="team away">${escapeHtml(e.strAwayTeam||"Away")}</div>
         </div>
+        <button class="open-btn" onclick="openMatch('${escapeAttr(e.idEvent)}')">Open match centre</button>
       </div>
     `).join("");
   }
 
   function renderRecent(events){
     if(!events.length){
-      recentEl.innerHTML = '<div class="card status-card">No completed Premier League matches were returned in the last few days.</div>';
+      recentEl.innerHTML='<div class="card status-card">No completed Premier League matches were returned in the last few days.</div>';
       return;
     }
-
-    recentEl.innerHTML = events.map(e => `
+    recentEl.innerHTML=events.map(e=>`
       <div class="card">
-        <div class="fixture-top">
-          <span>${prettyDate(e.dateEvent)}</span>
-          <span>FT</span>
-        </div>
+        <div class="fixture-top"><span>${prettyDate(e.dateEvent)}</span><span>FT</span></div>
         <div class="teams">
-          <div class="team">${escapeHtml(e.strHomeTeam || "Home")}</div>
-          <div class="score">${e.intHomeScore ?? "-"} – ${e.intAwayScore ?? "-"}</div>
-          <div class="team away">${escapeHtml(e.strAwayTeam || "Away")}</div>
+          <div class="team">${escapeHtml(e.strHomeTeam||"Home")}</div>
+          <div class="score">${escapeHtml(e.intHomeScore ?? "-")} – ${escapeHtml(e.intAwayScore ?? "-")}</div>
+          <div class="team away">${escapeHtml(e.strAwayTeam||"Away")}</div>
         </div>
-        <button class="open-btn" onclick='openStats(${JSON.stringify(String(e.idEvent))}, ${JSON.stringify((e.strHomeTeam||"Home")+" vs "+(e.strAwayTeam||"Away"))})'>
-          View match stats
-        </button>
+        <button class="open-btn" onclick="openMatch('${escapeAttr(e.idEvent)}')">Open match centre</button>
       </div>
     `).join("");
   }
 
-  async function openStats(idEvent, title){
-    document.getElementById("modal").classList.remove("hidden");
-    document.getElementById("modalTitle").textContent = title;
-    document.getElementById("modalBody").innerHTML = '<div class="status-card"><div class="spinner"></div>Loading match statistics…</div>';
+  async function openMatch(idEvent){
+    const event=eventStore.get(String(idEvent));
+    if(!event) return;
 
-    try{
-      const r = await fetch(`${API}/lookupeventstats.php?id=${encodeURIComponent(idEvent)}`);
-      if(!r.ok) throw new Error(`API error ${r.status}`);
-      const json = await r.json();
-      const stats = json.eventstats || [];
+    document.getElementById("matchModal").classList.remove("hidden");
+    document.body.style.overflow="hidden";
 
-      if(!stats.length){
-        document.getElementById("modalBody").innerHTML =
-          '<div class="empty">TheSportsDB does not have detailed statistics stored for this match yet.</div>';
-        return;
-      }
+    document.querySelectorAll(".match-tab").forEach((b,i)=>b.classList.toggle("active",i===0));
+    document.querySelectorAll(".match-panel").forEach((p,i)=>p.classList.toggle("active",i===0));
 
-      document.getElementById("modalBody").innerHTML = stats.map(s => `
-        <div class="stat-row">
-          <div class="home">${escapeHtml(s.intHome ?? "-")}</div>
-          <div class="name">${escapeHtml(s.strStat || "Stat")}</div>
-          <div class="away">${escapeHtml(s.intAway ?? "-")}</div>
-        </div>
-      `).join("");
-    }catch(err){
-      document.getElementById("modalBody").innerHTML =
-        '<div class="empty error">Could not load the match statistics right now.</div>';
-    }
+    const score=isCompleted(event)
+      ? `${escapeHtml(event.intHomeScore ?? "-")} – ${escapeHtml(event.intAwayScore ?? "-")}`
+      : `<span class="vs">${escapeHtml(prettyTime(event))}</span>`;
+
+    document.getElementById("matchHero").innerHTML=`
+      <div class="hero-meta">${prettyDate(event.dateEvent)} · ${escapeHtml(event.strVenue || "Venue TBC")}</div>
+      <div class="hero-teams">
+        <div class="hero-team">${escapeHtml(event.strHomeTeam||"Home")}</div>
+        <div class="hero-score">${score}</div>
+        <div class="hero-team">${escapeHtml(event.strAwayTeam||"Away")}</div>
+      </div>
+    `;
+
+    renderOverview(event);
+
+    document.getElementById("panel-stats").innerHTML=loading("Loading match statistics…");
+    document.getElementById("panel-lineups").innerHTML=loading("Loading lineups…");
+    document.getElementById("panel-events").innerHTML=loading("Loading match events…");
+
+    const [statsResult,lineupResult,timelineResult]=await Promise.allSettled([
+      fetchJson(`${API}/lookupeventstats.php?id=${encodeURIComponent(idEvent)}`),
+      fetchJson(`${API}/lookuplineup.php?id=${encodeURIComponent(idEvent)}`),
+      fetchJson(`${API}/lookuptimeline.php?id=${encodeURIComponent(idEvent)}`)
+    ]);
+
+    if(statsResult.status==="fulfilled") renderStats(statsResult.value);
+    else renderUnavailable("panel-stats","Match statistics could not be loaded.");
+
+    if(lineupResult.status==="fulfilled") renderLineups(lineupResult.value,event);
+    else renderUnavailable("panel-lineups","Lineups could not be loaded.");
+
+    if(timelineResult.status==="fulfilled") renderTimeline(timelineResult.value);
+    else renderUnavailable("panel-events","Match events could not be loaded.");
   }
 
-  function closeModal(event){
-    if(event && event.target !== document.getElementById("modal")) return;
-    document.getElementById("modal").classList.add("hidden");
+  function renderOverview(event){
+    const status=isCompleted(event) ? "Full time" : (event.strStatus || "Scheduled");
+    document.getElementById("panel-overview").innerHTML=`
+      <div class="mini-grid">
+        <div class="mini-card"><div class="mini-label">Competition</div><div class="mini-value">${escapeHtml(event.strLeague || "Premier League")}</div></div>
+        <div class="mini-card"><div class="mini-label">Status</div><div class="mini-value">${escapeHtml(status)}</div></div>
+        <div class="mini-card"><div class="mini-label">Kick-off</div><div class="mini-value">${escapeHtml(prettyTime(event))}</div></div>
+        <div class="mini-card"><div class="mini-label">Round</div><div class="mini-value">${escapeHtml(event.intRound || "—")}</div></div>
+        <div class="mini-card" style="grid-column:1/-1"><div class="mini-label">Venue</div><div class="mini-value">${escapeHtml(event.strVenue || "Not available")}</div></div>
+      </div>
+      <p class="panel-note" style="margin-top:14px">Stats, lineups and events are shown only when TheSportsDB has supplied them for this match.</p>
+    `;
+  }
+
+  function renderStats(json){
+    const stats=Array.isArray(json?.eventstats) ? json.eventstats : [];
+    if(!stats.length){
+      renderUnavailable("panel-stats","No detailed statistics are available for this match yet.");
+      return;
+    }
+    document.getElementById("panel-stats").innerHTML=`
+      <p class="panel-note">Every statistic currently returned for this match is shown below.</p>
+      ${stats.map(s=>`
+        <div class="stat-row">
+          <div class="stat-home">${escapeHtml(s.intHome ?? "—")}</div>
+          <div class="stat-name">${escapeHtml(s.strStat || "Statistic")}</div>
+          <div class="stat-away">${escapeHtml(s.intAway ?? "—")}</div>
+        </div>
+      `).join("")}
+    `;
+  }
+
+  function renderLineups(json,event){
+    let rows=Array.isArray(json?.lineup) ? json.lineup : [];
+    if(!rows.length){
+      renderUnavailable("panel-lineups","No lineup data is available for this match.");
+      return;
+    }
+
+    const homeId=String(event.idHomeTeam||"");
+    const awayId=String(event.idAwayTeam||"");
+    const homeName=(event.strHomeTeam||"").toLowerCase();
+    const awayName=(event.strAwayTeam||"").toLowerCase();
+
+    const home=[], away=[], unknown=[];
+    rows.forEach(p=>{
+      const teamId=String(p.idTeam||"");
+      const teamName=String(p.strTeam||"").toLowerCase();
+      if((homeId && teamId===homeId) || (teamName && teamName===homeName)) home.push(p);
+      else if((awayId && teamId===awayId) || (teamName && teamName===awayName)) away.push(p);
+      else unknown.push(p);
+    });
+
+    if(!home.length && !away.length && unknown.length){
+      // Fallback: use strHome/strSide if the API provides it.
+      unknown.forEach(p=>{
+        const side=String(p.strHome || p.strSide || "").toLowerCase();
+        if(side.includes("home")) home.push(p);
+        else if(side.includes("away")) away.push(p);
+      });
+    }
+
+    document.getElementById("panel-lineups").innerHTML=`
+      <p class="panel-note">Starting players and substitutes are separated when the source marks them that way.</p>
+      <div class="lineup-grid">
+        ${lineupColumn(event.strHomeTeam||"Home",home)}
+        ${lineupColumn(event.strAwayTeam||"Away",away)}
+      </div>
+      ${(!home.length && !away.length) ? `<div class="empty">Lineup data was returned, but MatchLab could not reliably separate the two teams.</div>` : ""}
+    `;
+  }
+
+  function lineupColumn(teamName,players){
+    if(!players.length){
+      return `<div class="lineup-team"><h4>${escapeHtml(teamName)}</h4><div class="empty">No players returned</div></div>`;
+    }
+
+    const isSub=p=>{
+      const raw=String(p.strSubstitute ?? p.strSub ?? p.strBench ?? "").toLowerCase();
+      return ["yes","true","1","substitute","bench"].some(x=>raw===x || raw.includes(x));
+    };
+
+    const starters=players.filter(p=>!isSub(p));
+    const subs=players.filter(isSub);
+
+    return `
+      <div class="lineup-team">
+        <h4>${escapeHtml(teamName)}</h4>
+        ${starters.length ? `<div class="lineup-section">Starting XI</div>${starters.map(playerRow).join("")}` : ""}
+        ${subs.length ? `<div class="lineup-section">Substitutes</div>${subs.map(playerRow).join("")}` : ""}
+        ${!starters.length && !subs.length ? players.map(playerRow).join("") : ""}
+      </div>
+    `;
+  }
+
+  function playerRow(p){
+    const name=p.strPlayer || p.strPlayerName || p.strName || "Player";
+    const pos=p.strPosition || p.strPositionShort || p.strRole || "";
+    return `<div class="player-row"><div class="player-name">${escapeHtml(name)}</div>${pos ? `<div class="player-pos">${escapeHtml(pos)}</div>` : ""}</div>`;
+  }
+
+  function renderTimeline(json){
+    const timeline=Array.isArray(json?.timeline) ? json.timeline : [];
+    if(!timeline.length){
+      const premiumMessage=typeof json?.timeline==="string" ? json.timeline : "";
+      renderUnavailable("panel-events", premiumMessage && premiumMessage.toLowerCase().includes("patreon")
+        ? "The match timeline is not available through the free API for this request."
+        : "No timeline events are available for this match.");
+      return;
+    }
+
+    const sorted=[...timeline].sort((a,b)=>(parseInt(a.intTime||a.strTime||0)||0)-(parseInt(b.intTime||b.strTime||0)||0));
+
+    document.getElementById("panel-events").innerHTML=`
+      <p class="panel-note">Goals, cards, substitutions and other timeline events are shown when supplied by the source.</p>
+      ${sorted.map(t=>{
+        const minute=t.intTime || t.strTime || t.intMinute || "";
+        const type=t.strTimeline || t.strEvent || t.strType || t.strTimelineDetail || "Match event";
+        const player=t.strPlayer || t.strPlayerName || "";
+        const detail=t.strTimelineDetail || t.strDetail || t.strAssist || t.strTeam || "";
+        return `
+          <div class="timeline-item">
+            <div class="timeline-time">${escapeHtml(minute ? String(minute).replace("'","")+"′" : "•")}</div>
+            <div>
+              <div class="timeline-main">${escapeHtml(type)}</div>
+              ${player ? `<div class="timeline-sub">${escapeHtml(player)}</div>` : ""}
+              ${detail && detail!==type && detail!==player ? `<div class="timeline-sub">${escapeHtml(detail)}</div>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    `;
+  }
+
+  function renderUnavailable(panelId,message){
+    document.getElementById(panelId).innerHTML=`<div class="empty">${escapeHtml(message)}</div>`;
+  }
+
+  function loading(message){
+    return `<div class="status-card"><div class="spinner"></div>${escapeHtml(message)}</div>`;
+  }
+
+  function closeMatch(event){
+    if(event && event.target!==document.getElementById("matchModal")) return;
+    document.getElementById("matchModal").classList.add("hidden");
+    document.body.style.overflow="";
   }
 
   function escapeHtml(value){
@@ -355,6 +550,10 @@
       .replaceAll(">","&gt;")
       .replaceAll('"',"&quot;")
       .replaceAll("'","&#039;");
+  }
+
+  function escapeAttr(value){
+    return String(value ?? "").replace(/[^0-9A-Za-z_-]/g,"");
   }
 
   loadFootballData();
