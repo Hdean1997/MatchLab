@@ -1,170 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b1220">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07110f" />
   <title>MatchLab</title>
-
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root{
+      --bg:#07110f;
+      --panel:#0d1a17;
+      --panel2:#10211d;
+      --line:#1d332d;
+      --text:#f4f7f6;
+      --muted:#91a6a0;
+      --mint:#7fffd4;
+      --mint2:#4fe0b4;
+      --danger:#ff7b8a;
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #08101d;
-      color: #ffffff;
-      min-height: 100vh;
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    body{min-height:100vh;padding-bottom:96px}
+    button{font:inherit}
+    .app{max-width:760px;margin:0 auto;padding:18px 16px 0}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .brand{font-size:27px;font-weight:900;letter-spacing:-1px}
+    .brand span{color:var(--mint)}
+    .live-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);padding:8px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--mint)}
+    .eyebrow{font-size:11px;font-weight:800;letter-spacing:1.8px;color:var(--mint);margin-bottom:8px}
+    h1{font-size:38px;line-height:1.02;letter-spacing:-1.7px;margin:0 0 12px;max-width:520px}
+    .sub{color:var(--muted);font-size:15px;line-height:1.55;margin:0 0 25px;max-width:550px}
+    .section-head{display:flex;align-items:end;justify-content:space-between;margin:8px 0 12px}
+    .section-head h2{margin:0;font-size:20px;letter-spacing:-.5px}
+    .section-head small{color:var(--muted)}
+    .card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:11px}
+    .fixture-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:13px}
+    .teams{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+    .team{font-size:15px;font-weight:750;line-height:1.25}
+    .team.away{text-align:right}
+    .score{font-size:18px;font-weight:900;color:var(--mint);min-width:56px;text-align:center}
+    .vs{font-size:12px;color:var(--muted);font-weight:800}
+    .open-btn{width:100%;margin-top:13px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0a1512;color:var(--text);font-weight:750}
+    .open-btn:active{transform:scale(.99)}
+    .status-card{padding:18px;text-align:center;color:var(--muted)}
+    .spinner{width:24px;height:24px;border:3px solid var(--line);border-top-color:var(--mint);border-radius:50%;margin:4px auto 12px;animation:spin .85s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .error{color:#ffb5bd}
+    .hidden{display:none!important}
+    .tab-page{display:none}
+    .tab-page.active{display:block}
+    .bottom-nav{
+      position:fixed;left:0;right:0;bottom:0;
+      background:rgba(7,17,15,.94);
+      backdrop-filter:blur(14px);
+      border-top:1px solid var(--line);
+      padding:9px 8px calc(9px + env(safe-area-inset-bottom));
+      z-index:20
     }
-
-    header {
-      padding: 24px 20px;
-      border-bottom: 1px solid #1f2a3a;
+    .nav-inner{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+    .nav-btn{border:0;background:transparent;color:var(--muted);padding:8px 4px;border-radius:12px;font-size:11px;font-weight:750}
+    .nav-btn .icon{display:block;font-size:20px;margin-bottom:2px}
+    .nav-btn.active{color:var(--mint);background:#0d1a17}
+    .info-box{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:17px;margin-bottom:12px}
+    .info-box h3{margin:0 0 7px;font-size:16px}
+    .info-box p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:40;
+      display:flex;align-items:flex-end;justify-content:center
     }
-
-    .logo {
-      font-size: 26px;
-      font-weight: 800;
+    .sheet{
+      width:100%;max-width:760px;max-height:82vh;overflow:auto;
+      background:#0a1513;border:1px solid var(--line);border-bottom:0;
+      border-radius:24px 24px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))
     }
-
-    .logo span {
-      color: #42e8a5;
-    }
-
-    main {
-      padding: 28px 20px 100px;
-      max-width: 800px;
-      margin: auto;
-    }
-
-    .eyebrow {
-      color: #42e8a5;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1.4px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    h1 {
-      font-size: 32px;
-      line-height: 1.1;
-      margin-bottom: 12px;
-    }
-
-    .intro {
-      color: #9ba9bc;
-      line-height: 1.6;
-      margin-bottom: 30px;
-    }
-
-    .section-title {
-      font-size: 20px;
-      margin-bottom: 14px;
-    }
-
-    .fixture {
-      background: #111b2a;
-      border: 1px solid #213047;
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 12px;
-    }
-
-    .competition {
-      color: #7f91a9;
-      font-size: 12px;
-      margin-bottom: 14px;
-    }
-
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-    }
-
-    .time {
-      background: #1b293c;
-      padding: 7px 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #0d1725;
-      border-top: 1px solid #213047;
-      display: flex;
-      justify-content: space-around;
-      padding: 13px 8px 25px;
-    }
-
-    nav div {
-      color: #8090a6;
-      font-size: 12px;
-      text-align: center;
-    }
-
-    nav .active {
-      color: #42e8a5;
-      font-weight: 700;
-    }
+    .sheet-bar{width:42px;height:4px;border-radius:8px;background:#385047;margin:0 auto 15px}
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .sheet h3{margin:0;font-size:20px}
+    .close{border:1px solid var(--line);background:var(--panel);color:var(--text);width:35px;height:35px;border-radius:50%;font-size:20px}
+    .stat-row{display:grid;grid-template-columns:55px 1fr 55px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+    .stat-row:last-child{border-bottom:0}
+    .stat-row .name{text-align:center;color:var(--muted);font-size:12px}
+    .stat-row .home{font-weight:850}
+    .stat-row .away{text-align:right;font-weight:850}
+    .empty{color:var(--muted);text-align:center;padding:18px 8px}
+    .refresh{border:0;background:transparent;color:var(--mint);font-weight:800;padding:0}
+    .badge{display:inline-block;padding:5px 8px;border-radius:8px;background:#122820;color:var(--mint);font-size:11px;font-weight:800;margin-top:8px}
   </style>
 </head>
-
 <body>
-
-  <header>
-    <div class="logo">Match<span>Lab</span></div>
-  </header>
-
-  <main>
-    <div class="eyebrow">Football Intelligence</div>
-
-    <h1>Analyse the match.<br>Understand the numbers.</h1>
-
-    <p class="intro">
-      Explore fixtures, player statistics, team form and historical
-      trends from one place.
-    </p>
-
-    <h2 class="section-title">Upcoming Fixtures</h2>
-
-    <div class="fixture">
-      <div class="competition">PREMIER LEAGUE</div>
-      <div class="teams">
-        <span>Manchester City</span>
-        <span class="time">16:30</span>
-        <span>Manchester United</span>
-      </div>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">Match<span>Lab</span></div>
+      <div class="live-pill"><span class="dot"></span> TheSportsDB</div>
     </div>
 
-    <div class="fixture">
-      <div class="competition">PREMIER LEAGUE</div>
-      <div class="teams">
-        <span>Arsenal</span>
-        <span class="time">20:00</span>
-        <span>Liverpool</span>
-      </div>
-    </div>
+    <section id="fixturesPage" class="tab-page active">
+      <div class="eyebrow">FOOTBALL INTELLIGENCE</div>
+      <h1>Analyse the match.<br>Understand the numbers.</h1>
+      <p class="sub">Current Premier League fixtures and recent results, pulled directly from TheSportsDB's free API.</p>
 
+      <div class="section-head">
+        <h2>Upcoming fixtures</h2>
+        <button class="refresh" onclick="loadFootballData()">Refresh</button>
+      </div>
+      <div id="upcoming">
+        <div class="card status-card"><div class="spinner"></div>Loading current fixtures…</div>
+      </div>
+
+      <div class="section-head" style="margin-top:24px">
+        <h2>Recent results</h2>
+        <small>Tap a match for stats</small>
+      </div>
+      <div id="recent">
+        <div class="card status-card"><div class="spinner"></div>Loading results…</div>
+      </div>
+    </section>
+
+    <section id="explorePage" class="tab-page">
+      <div class="eyebrow">EXPLORE</div>
+      <h1>Football data,<br>without the clutter.</h1>
+      <div class="info-box">
+        <h3>Premier League</h3>
+        <p>League ID 4328 · Season 2026/27. MatchLab is now connected directly to TheSportsDB's free public API.</p>
+        <span class="badge">LIVE DATA CONNECTION</span>
+      </div>
+      <div class="info-box">
+        <h3>Match statistics</h3>
+        <p>For completed matches where TheSportsDB has a statistics record, MatchLab can display shots, passing, fouls, cards, possession and other available match data.</p>
+      </div>
+    </section>
+
+    <section id="playersPage" class="tab-page">
+      <div class="eyebrow">PLAYERS</div>
+      <h1>Player analysis<br>comes next.</h1>
+      <div class="info-box">
+        <h3>Next build stage</h3>
+        <p>We'll add player and team pages after we confirm the fixture feed is behaving properly on your GitHub Pages site.</p>
+      </div>
+    </section>
+
+    <section id="savedPage" class="tab-page">
+      <div class="eyebrow">SAVED</div>
+      <h1>Your matches,<br>kept handy.</h1>
+      <div class="info-box">
+        <h3>Saved matches</h3>
+        <p>This section is ready for us to add favourites once the live football feed is confirmed working.</p>
+      </div>
+    </section>
   </main>
 
-  <nav>
-    <div class="active">Fixtures</div>
-    <div>Explore</div>
-    <div>Players</div>
-    <div>Saved</div>
+  <nav class="bottom-nav">
+    <div class="nav-inner">
+      <button class="nav-btn active" data-page="fixturesPage"><span class="icon">⚽️</span>Fixtures</button>
+      <button class="nav-btn" data-page="explorePage"><span class="icon">⌕</span>Explore</button>
+      <button class="nav-btn" data-page="playersPage"><span class="icon">♙</span>Players</button>
+      <button class="nav-btn" data-page="savedPage"><span class="icon">♡</span>Saved</button>
+    </div>
   </nav>
 
+  <div id="modal" class="modal hidden" onclick="closeModal(event)">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-bar"></div>
+      <div class="sheet-head">
+        <h3 id="modalTitle">Match statistics</h3>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <div id="modalBody" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+<script>
+  const API = "https://www.thesportsdb.com/api/v1/json/123";
+  const EPL_ID = "4328";
+
+  const upcomingEl = document.getElementById("upcoming");
+  const recentEl = document.getElementById("recent");
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-page").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.page).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  function isoDate(date){
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,"0");
+    const d = String(date.getDate()).padStart(2,"0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function addDays(base, n){
+    const d = new Date(base);
+    d.setDate(d.getDate()+n);
+    return d;
+  }
+
+  function prettyDate(value){
+    if(!value) return "Date TBC";
+    const d = new Date(value + "T12:00:00");
+    return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+  }
+
+  function prettyTime(event){
+    const raw = event.strTime || event.strTimestamp?.slice(11,16);
+    if(!raw) return "Time TBC";
+    return raw.slice(0,5);
+  }
+
+  function isCompleted(event){
+    const status = (event.strStatus || "").toLowerCase();
+    return event.intHomeScore !== null &&
+           event.intHomeScore !== "" &&
+           event.intAwayScore !== null &&
+           event.intAwayScore !== "" &&
+           !status.includes("postpon");
+  }
+
+  function dedupeEvents(events){
+    const map = new Map();
+    events.forEach(e => {
+      if(e && e.idEvent && String(e.idLeague) === EPL_ID) map.set(e.idEvent,e);
+    });
+    return [...map.values()];
+  }
+
+  async function fetchDay(date){
+    const url = `${API}/eventsday.php?d=${isoDate(date)}&l=${EPL_ID}`;
+    const r = await fetch(url);
+    if(!r.ok) throw new Error(`API error ${r.status}`);
+    const json = await r.json();
+    return json.events || [];
+  }
+
+  async function loadFootballData(){
+    upcomingEl.innerHTML = '<div class="card status-card"><div class="spinner"></div>Loading current fixtures…</div>';
+    recentEl.innerHTML = '<div class="card status-card"><div class="spinner"></div>Loading results…</div>';
+
+    try{
+      const now = new Date();
+
+      // 7 calls total: within the free API's documented 30 requests/minute allowance.
+      // We look at the previous 3 days, today, and next 3 days.
+      const offsets = [-3,-2,-1,0,1,2,3];
+      const dayResults = await Promise.all(offsets.map(n => fetchDay(addDays(now,n))));
+      const events = dedupeEvents(dayResults.flat())
+        .sort((a,b) => `${a.dateEvent||""} ${a.strTime||""}`.localeCompare(`${b.dateEvent||""} ${b.strTime||""}`));
+
+      const recent = events.filter(isCompleted).slice(-6).reverse();
+      const upcoming = events.filter(e => !isCompleted(e)).slice(0,8);
+
+      renderUpcoming(upcoming);
+      renderRecent(recent);
+
+    }catch(err){
+      console.error(err);
+      const msg = `
+        <div class="card status-card error">
+          MatchLab couldn't reach TheSportsDB right now.<br><br>
+          Tap <b>Refresh</b> in a moment.
+        </div>`;
+      upcomingEl.innerHTML = msg;
+      recentEl.innerHTML = msg;
+    }
+  }
+
+  function renderUpcoming(events){
+    if(!events.length){
+      upcomingEl.innerHTML = '<div class="card status-card">No Premier League fixtures were returned in the next few days.</div>';
+      return;
+    }
+
+    upcomingEl.innerHTML = events.map(e => `
+      <div class="card">
+        <div class="fixture-top">
+          <span>${prettyDate(e.dateEvent)}</span>
+          <span>${prettyTime(e)}</span>
+        </div>
+        <div class="teams">
+          <div class="team">${escapeHtml(e.strHomeTeam || "Home")}</div>
+          <div class="score"><span class="vs">VS</span></div>
+          <div class="team away">${escapeHtml(e.strAwayTeam || "Away")}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function renderRecent(events){
+    if(!events.length){
+      recentEl.innerHTML = '<div class="card status-card">No completed Premier League matches were returned in the last few days.</div>';
+      return;
+    }
+
+    recentEl.innerHTML = events.map(e => `
+      <div class="card">
+        <div class="fixture-top">
+          <span>${prettyDate(e.dateEvent)}</span>
+          <span>FT</span>
+        </div>
+        <div class="teams">
+          <div class="team">${escapeHtml(e.strHomeTeam || "Home")}</div>
+          <div class="score">${e.intHomeScore ?? "-"} – ${e.intAwayScore ?? "-"}</div>
+          <div class="team away">${escapeHtml(e.strAwayTeam || "Away")}</div>
+        </div>
+        <button class="open-btn" onclick='openStats(${JSON.stringify(String(e.idEvent))}, ${JSON.stringify((e.strHomeTeam||"Home")+" vs "+(e.strAwayTeam||"Away"))})'>
+          View match stats
+        </button>
+      </div>
+    `).join("");
+  }
+
+  async function openStats(idEvent, title){
+    document.getElementById("modal").classList.remove("hidden");
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalBody").innerHTML = '<div class="status-card"><div class="spinner"></div>Loading match statistics…</div>';
+
+    try{
+      const r = await fetch(`${API}/lookupeventstats.php?id=${encodeURIComponent(idEvent)}`);
+      if(!r.ok) throw new Error(`API error ${r.status}`);
+      const json = await r.json();
+      const stats = json.eventstats || [];
+
+      if(!stats.length){
+        document.getElementById("modalBody").innerHTML =
+          '<div class="empty">TheSportsDB does not have detailed statistics stored for this match yet.</div>';
+        return;
+      }
+
+      document.getElementById("modalBody").innerHTML = stats.map(s => `
+        <div class="stat-row">
+          <div class="home">${escapeHtml(s.intHome ?? "-")}</div>
+          <div class="name">${escapeHtml(s.strStat || "Stat")}</div>
+          <div class="away">${escapeHtml(s.intAway ?? "-")}</div>
+        </div>
+      `).join("");
+    }catch(err){
+      document.getElementById("modalBody").innerHTML =
+        '<div class="empty error">Could not load the match statistics right now.</div>';
+    }
+  }
+
+  function closeModal(event){
+    if(event && event.target !== document.getElementById("modal")) return;
+    document.getElementById("modal").classList.add("hidden");
+  }
+
+  function escapeHtml(value){
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  loadFootballData();
+</script>
 </body>
 </html>
