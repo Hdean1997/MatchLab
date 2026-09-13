@@ -298,8 +298,26 @@
     try{
       const now=new Date();
       const offsets=[-3,-2,-1,0,1,2,3];
-      const dayResults=await Promise.all(offsets.map(n=>fetchDay(addDays(now,n))));
-      const events=dedupeEvents(dayResults.flat())
+
+      // Use allSettled so one failed/rate-limited daily request does not
+      // make the whole MatchLab home screen fail.
+      const dayResults=await Promise.allSettled(
+        offsets.map(async (n,index)=>{
+          // Tiny stagger helps avoid sending every free-API request at once.
+          await new Promise(resolve=>setTimeout(resolve,index*140));
+          return fetchDay(addDays(now,n));
+        })
+      );
+
+      const successfulDays=dayResults
+        .filter(result=>result.status==="fulfilled")
+        .flatMap(result=>result.value);
+
+      if(!successfulDays.length){
+        throw new Error("No fixture requests succeeded");
+      }
+
+      const events=dedupeEvents(successfulDays)
         .sort((a,b)=>`${a.dateEvent||""} ${a.strTime||""}`.localeCompare(`${b.dateEvent||""} ${b.strTime||""}`));
 
       events.forEach(e=>eventStore.set(String(e.idEvent),e));
@@ -308,7 +326,7 @@
       renderRecent(events.filter(isCompleted).slice(-8).reverse());
     }catch(err){
       console.error(err);
-      const msg='<div class="card status-card error">MatchLab could not reach TheSportsDB right now.<br><br>Tap <b>Refresh</b> in a moment.</div>';
+      const msg='<div class="card status-card error">MatchLab could not load any fixture data right now.<br><br>Wait a few seconds, then tap <b>Refresh</b>.</div>';
       upcomingEl.innerHTML=msg;
       recentEl.innerHTML=msg;
     }
